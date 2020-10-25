@@ -6,24 +6,20 @@ const onDragEnd = (result, containers, setContainers) => {
 	if (!result.destination) return;
 	const { source, destination } = result;
 
-	// Find the origin container
 	const [sourceContainer] = containers.filter(c => c._id === source.droppableId);
-	const [destinationContainer] = containers.filter(c => c._id === destination.droppableId);
+	const sourceTodos = [...sourceContainer.todos];
+	const [removed] = sourceTodos.splice(source.index, 1);
+	sourceContainer.todos = sourceTodos;
 
-	// Copy the todos of the origin container
-	const copiedTodos = [...sourceContainer.todos];
-	// Remove todo from origin container
-	const [removed] = copiedTodos.splice(source.index, 1);
-
-	// Copy the todos of the origin container
-	const copiedTodosDest = [...destinationContainer.todos];
-	copiedTodosDest.splice(destination.index, 0, removed);
-
-	sourceContainer.todos = copiedTodos;
-	destinationContainer.todos = copiedTodosDest;
-
+	if (source.droppableId !== destination.droppableId) {
+		const [destinationContainer] = containers.filter(c => c._id === destination.droppableId);
+		const destTodos = [...destinationContainer.todos];
+		destTodos.splice(destination.index, 0, removed);
+		destinationContainer.todos = destTodos;
+	} else {
+		sourceTodos.splice(destination.index, 0, removed);
+	}
 	const containersCopy = [...containers];
-
 	setContainers([...containersCopy]);
 };
 
@@ -73,7 +69,7 @@ function App() {
 														...provided.draggableProps.style,
 													}}
 												>
-													Hola
+													{`${todo._id}`}
 												</div>
 											)}
 										</Draggable>
